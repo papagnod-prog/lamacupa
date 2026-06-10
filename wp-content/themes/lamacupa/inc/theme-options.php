@@ -133,6 +133,19 @@ function lamacupa_save_options() {
     $options['facebook']         = esc_url_raw( $raw['facebook'] ?? '' );
     $options['youtube']          = esc_url_raw( $raw['youtube'] ?? '' );
 
+    // --- Tab Pagamenti ---
+    $options['stripe_enabled']     = isset( $raw['stripe_enabled'] ) ? 1 : 0;
+    $options['stripe_public_key']  = sanitize_text_field( $raw['stripe_public_key'] ?? '' );
+    $options['stripe_secret_key']  = sanitize_text_field( $raw['stripe_secret_key'] ?? '' );
+    $options['stripe_test_mode']   = isset( $raw['stripe_test_mode'] ) ? 1 : 0;
+    $options['paypal_enabled']     = isset( $raw['paypal_enabled'] ) ? 1 : 0;
+    $options['paypal_email']       = sanitize_email( $raw['paypal_email'] ?? '' );
+    $options['bacs_enabled']       = isset( $raw['bacs_enabled'] ) ? 1 : 0;
+    $options['bacs_iban']          = sanitize_text_field( $raw['bacs_iban'] ?? '' );
+    $options['bacs_intestatario']  = sanitize_text_field( $raw['bacs_intestatario'] ?? '' );
+    $options['bacs_causale']       = sanitize_text_field( $raw['bacs_causale'] ?? '' );
+    $options['cod_enabled']        = isset( $raw['cod_enabled'] ) ? 1 : 0;
+
     // --- Tab Social & SEO ---
     $options['meta_description']    = sanitize_textarea_field( $raw['meta_description'] ?? '' );
     $options['og_image']            = absint( $raw['og_image'] ?? 0 );
@@ -169,6 +182,7 @@ function lamacupa_options_page() {
         'identita'  => 'Identità Visiva',
         'homepage'  => 'Homepage',
         'contatti'  => 'Contatti',
+        'pagamenti' => 'Pagamenti',
         'seo'       => 'Social & SEO',
     ];
 
@@ -550,6 +564,129 @@ function lamacupa_options_page() {
                     </div>
                 </div>
             </div><!-- /#tab-contatti -->
+
+            <!-- ================================================
+                 TAB: PAGAMENTI
+                 ================================================ -->
+            <div class="lamacupa-tab-panel<?php echo $active_tab === 'pagamenti' ? ' lamacupa-tab-panel--active' : ''; ?>" id="tab-pagamenti">
+
+                <!-- Stripe -->
+                <div class="lamacupa-card">
+                    <h2 class="lamacupa-card__title">Stripe</h2>
+                    <div class="lamacupa-fields">
+
+                        <div class="lamacupa-field lamacupa-field--checkbox lamacupa-field--full">
+                            <label>
+                                <input type="checkbox" name="lamacupa[stripe_enabled]" value="1"
+                                    <?php checked( 1, $opt( 'stripe_enabled', 0 ) ); ?>>
+                                Abilita pagamenti con Stripe
+                            </label>
+                        </div>
+
+                        <div class="lamacupa-field lamacupa-field--full">
+                            <label for="lc_stripe_public_key">Chiave Pubblica (Publishable Key)</label>
+                            <input type="text" id="lc_stripe_public_key" name="lamacupa[stripe_public_key]"
+                                value="<?php echo esc_attr( $opt('stripe_public_key') ); ?>" class="large-text"
+                                placeholder="pk_live_...">
+                        </div>
+
+                        <div class="lamacupa-field lamacupa-field--full">
+                            <label for="lc_stripe_secret_key">Chiave Segreta (Secret Key)</label>
+                            <input type="password" id="lc_stripe_secret_key" name="lamacupa[stripe_secret_key]"
+                                value="<?php echo esc_attr( $opt('stripe_secret_key') ); ?>" class="large-text"
+                                placeholder="sk_live_...">
+                            <p class="description">La chiave segreta non viene mai esposta al pubblico.</p>
+                        </div>
+
+                        <div class="lamacupa-field lamacupa-field--checkbox">
+                            <label>
+                                <input type="checkbox" name="lamacupa[stripe_test_mode]" value="1"
+                                    <?php checked( 1, $opt( 'stripe_test_mode', 0 ) ); ?>>
+                                Modalità Test (usa chiavi test pk_test_ / sk_test_)
+                            </label>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- PayPal -->
+                <div class="lamacupa-card">
+                    <h2 class="lamacupa-card__title">PayPal</h2>
+                    <div class="lamacupa-fields">
+
+                        <div class="lamacupa-field lamacupa-field--checkbox lamacupa-field--full">
+                            <label>
+                                <input type="checkbox" name="lamacupa[paypal_enabled]" value="1"
+                                    <?php checked( 1, $opt( 'paypal_enabled', 0 ) ); ?>>
+                                Abilita pagamenti con PayPal
+                            </label>
+                        </div>
+
+                        <div class="lamacupa-field lamacupa-field--full">
+                            <label for="lc_paypal_email">Email PayPal</label>
+                            <input type="email" id="lc_paypal_email" name="lamacupa[paypal_email]"
+                                value="<?php echo esc_attr( $opt('paypal_email') ); ?>" class="regular-text"
+                                placeholder="pagamenti@lamacupa.it">
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Bonifico Bancario -->
+                <div class="lamacupa-card">
+                    <h2 class="lamacupa-card__title">Bonifico Bancario</h2>
+                    <div class="lamacupa-fields">
+
+                        <div class="lamacupa-field lamacupa-field--checkbox lamacupa-field--full">
+                            <label>
+                                <input type="checkbox" name="lamacupa[bacs_enabled]" value="1"
+                                    <?php checked( 1, $opt( 'bacs_enabled', 0 ) ); ?>>
+                                Abilita pagamento tramite bonifico bancario
+                            </label>
+                        </div>
+
+                        <div class="lamacupa-field lamacupa-field--full">
+                            <label for="lc_bacs_iban">IBAN</label>
+                            <input type="text" id="lc_bacs_iban" name="lamacupa[bacs_iban]"
+                                value="<?php echo esc_attr( $opt('bacs_iban') ); ?>" class="large-text"
+                                placeholder="IT60 X054 2811 1010 0000 0123 456">
+                        </div>
+
+                        <div class="lamacupa-field">
+                            <label for="lc_bacs_intestatario">Intestatario del Conto</label>
+                            <input type="text" id="lc_bacs_intestatario" name="lamacupa[bacs_intestatario]"
+                                value="<?php echo esc_attr( $opt('bacs_intestatario') ); ?>" class="regular-text"
+                                placeholder="Azienda Agricola Lamacupa">
+                        </div>
+
+                        <div class="lamacupa-field lamacupa-field--full">
+                            <label for="lc_bacs_causale">Causale Suggerita</label>
+                            <input type="text" id="lc_bacs_causale" name="lamacupa[bacs_causale]"
+                                value="<?php echo esc_attr( $opt('bacs_causale', 'Ordine #{order_number}') ); ?>" class="large-text"
+                                placeholder="Ordine #{order_number}">
+                            <p class="description">Puoi usare {order_number} come segnaposto per il numero d'ordine.</p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Contrassegno -->
+                <div class="lamacupa-card">
+                    <h2 class="lamacupa-card__title">Contrassegno (Pagamento alla Consegna)</h2>
+                    <div class="lamacupa-fields">
+
+                        <div class="lamacupa-field lamacupa-field--checkbox lamacupa-field--full">
+                            <label>
+                                <input type="checkbox" name="lamacupa[cod_enabled]" value="1"
+                                    <?php checked( 1, $opt( 'cod_enabled', 0 ) ); ?>>
+                                Abilita pagamento in contrassegno (Cash on Delivery)
+                            </label>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div><!-- /#tab-pagamenti -->
 
             <!-- ================================================
                  TAB: SOCIAL & SEO

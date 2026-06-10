@@ -57,4 +57,4 @@ get_header();
 
 </div><!-- /.page-content -->
 
-<?php get_footer(); ?>
+<?php get_footer();

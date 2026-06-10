@@ -333,4 +333,4 @@ if ( ! $lc_cta_link ) $lc_cta_link = home_url( '/prodotti/' );
     </div>
 </section>
 
-<?php get_footer(); ?>
+<?php get_footer();

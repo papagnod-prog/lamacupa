@@ -35,7 +35,8 @@
         <!-- Logo -->
         <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="site-logo" rel="home">
             <?php
-            $lc_logo_url = function_exists( 'lamacupa_option' ) ? lamacupa_option( 'logo', '' ) : '';
+            $lc_logo_id  = function_exists( 'lamacupa_option' ) ? (int) lamacupa_option( 'logo', 0 ) : 0;
+            $lc_logo_url = $lc_logo_id ? wp_get_attachment_image_url( $lc_logo_id, 'full' ) : '';
             if ( $lc_logo_url ) {
                 echo '<img src="' . esc_url( $lc_logo_url ) . '" class="site-logo__img" alt="' . esc_attr( get_bloginfo( 'name' ) ) . '">';
             } elseif ( has_custom_logo() ) {
@@ -126,4 +127,3 @@ function lamacupa_primary_menu_fallback() {
 function lamacupa_mobile_menu_fallback() {
     lamacupa_primary_menu_fallback();
 }
-?>

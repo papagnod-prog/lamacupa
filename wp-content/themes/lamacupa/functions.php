@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'LAMACUPA_VERSION', '1.0.0' );
+define( 'LAMACUPA_VERSION', '1.1.0' );
 define( 'LAMACUPA_DIR', get_template_directory() );
 define( 'LAMACUPA_URI', get_template_directory_uri() );
 
@@ -367,8 +367,59 @@ add_filter( 'loop_shop_per_page', function() { return 9; }, 20 );
  */
 function lamacupa_option( $key, $default = '' ) {
     $options = get_option( 'lamacupa_options', [] );
-    return isset( $options[ $key ] ) ? $options[ $key ] : $default;
+    if ( ! is_array( $options ) ) {
+        $options = [];
+    }
+    return ( isset( $options[ $key ] ) && '' !== $options[ $key ] ) ? $options[ $key ] : $default;
 }
+
+/* ============================================================
+   WOOCOMMERCE: PAYMENT GATEWAY SETTINGS FROM THEME OPTIONS
+   ============================================================ */
+/**
+ * Enable or disable WooCommerce payment gateways based on theme options.
+ * Runs on woocommerce_payment_gateways filter.
+ */
+function lamacupa_apply_gateway_settings( $load_gateways ) {
+    // Only apply settings on the frontend checkout / AJAX calls
+    if ( is_admin() && ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
+        return $load_gateways;
+    }
+
+    $stripe_enabled  = (bool) lamacupa_option( 'stripe_enabled', 0 );
+    $paypal_enabled  = (bool) lamacupa_option( 'paypal_enabled', 0 );
+    $bacs_enabled    = (bool) lamacupa_option( 'bacs_enabled', 0 );
+    $cod_enabled     = (bool) lamacupa_option( 'cod_enabled', 0 );
+
+    // Map WC gateway class => our option flag
+    $gateway_map = [
+        'WC_Gateway_BACS' => $bacs_enabled,
+        'WC_Gateway_COD'  => $cod_enabled,
+        'WC_Gateway_Paypal' => $paypal_enabled,
+    ];
+
+    foreach ( $load_gateways as $key => $gateway_class ) {
+        $class_name = is_object( $gateway_class ) ? get_class( $gateway_class ) : $gateway_class;
+        if ( isset( $gateway_map[ $class_name ] ) && ! $gateway_map[ $class_name ] ) {
+            unset( $load_gateways[ $key ] );
+        }
+    }
+
+    return $load_gateways;
+}
+add_filter( 'woocommerce_payment_gateways', 'lamacupa_apply_gateway_settings' );
+
+/**
+ * Inject Stripe public key into page if Stripe is enabled.
+ */
+function lamacupa_stripe_public_key_data() {
+    if ( ! lamacupa_option( 'stripe_enabled', 0 ) ) return;
+    $pk = lamacupa_option( 'stripe_public_key', '' );
+    if ( $pk ) {
+        echo '<script>window.lamacupaStripeKey=' . wp_json_encode( $pk ) . ';</script>' . "\n";
+    }
+}
+add_action( 'wp_head', 'lamacupa_stripe_public_key_data', 50 );
 
 /* ============================================================
    INCLUDE ADDITIONAL THEME FILES
