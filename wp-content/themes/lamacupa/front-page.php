@@ -11,12 +11,21 @@ get_header();
 <!-- ============================================================
      HERO SECTION
      ============================================================ -->
+<?php
+$lc_hero_bg       = function_exists( 'lamacupa_option' ) ? lamacupa_option( 'hero_bg_image', '' ) : '';
+$lc_hero_bg_url   = $lc_hero_bg ? $lc_hero_bg : esc_url( LAMACUPA_URI ) . '/assets/images/hero-bg.jpg';
+$lc_hero_titolo   = function_exists( 'lamacupa_option' ) ? lamacupa_option( 'hero_titolo', "L'Oro Verde di Puglia" ) : "L'Oro Verde di Puglia";
+$lc_hero_sub      = function_exists( 'lamacupa_option' ) ? lamacupa_option( 'hero_sottotitolo', "Olio extravergine d'oliva biologico ottenuto dalla raccolta tradizionale delle olive Coratina e Ogliarola Barese, custodite nelle nostre terre da secoli." ) : "Olio extravergine d'oliva biologico ottenuto dalla raccolta tradizionale delle olive Coratina e Ogliarola Barese, custodite nelle nostre terre da secoli.";
+$lc_cta_testo     = function_exists( 'lamacupa_option' ) ? lamacupa_option( 'hero_cta_testo', 'Scopri i Prodotti' ) : 'Scopri i Prodotti';
+$lc_cta_link      = function_exists( 'lamacupa_option' ) ? lamacupa_option( 'hero_cta_link', home_url( '/prodotti/' ) ) : home_url( '/prodotti/' );
+if ( ! $lc_cta_link ) $lc_cta_link = home_url( '/prodotti/' );
+?>
 <section class="hero" id="hero" aria-labelledby="heroTitle">
 
     <div
         class="hero__bg"
         id="heroBg"
-        style="background-image: url('<?php echo esc_url( LAMACUPA_URI ); ?>/assets/images/hero-bg.jpg');"
+        style="background-image: url('<?php echo esc_url( $lc_hero_bg_url ); ?>');"
         aria-hidden="true"
     ></div>
 
@@ -26,17 +35,16 @@ get_header();
         <span class="hero__eyebrow">Azienda Agricola &bull; Puglia &amp; Basilicata</span>
 
         <h1 class="hero__title" id="heroTitle">
-            L&rsquo;<em>Oro Verde</em><br>di Puglia
+            <?php echo wp_kses_post( $lc_hero_titolo ); ?>
         </h1>
 
         <p class="hero__subtitle">
-            Olio extravergine d&rsquo;oliva biologico ottenuto dalla raccolta tradizionale
-            delle olive Coratina e Ogliarola Barese, custodite nelle nostre terre da secoli.
+            <?php echo esc_html( $lc_hero_sub ); ?>
         </p>
 
         <div class="hero__cta">
-            <a href="<?php echo esc_url( home_url( '/prodotti/' ) ); ?>" class="btn btn--white btn--lg">
-                Scopri i Prodotti
+            <a href="<?php echo esc_url( $lc_cta_link ); ?>" class="btn btn--white btn--lg">
+                <?php echo esc_html( $lc_cta_testo ); ?>
             </a>
             <a href="<?php echo esc_url( home_url( '/chi-siamo/' ) ); ?>" class="btn btn--outline-white btn--lg">
                 La Nostra Storia

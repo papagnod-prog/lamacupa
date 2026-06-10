@@ -354,3 +354,25 @@ remove_action( 'wp_head', 'wp_shortlink_wp_head' );
    ============================================================ */
 add_filter( 'loop_shop_columns', function() { return 3; } );
 add_filter( 'loop_shop_per_page', function() { return 9; }, 20 );
+
+/* ============================================================
+   THEME OPTIONS HELPER
+   ============================================================ */
+/**
+ * Get a single theme option value.
+ *
+ * @param string $key     Option key.
+ * @param mixed  $default Default value if option not set.
+ * @return mixed
+ */
+function lamacupa_option( $key, $default = '' ) {
+    $options = get_option( 'lamacupa_options', [] );
+    return isset( $options[ $key ] ) ? $options[ $key ] : $default;
+}
+
+/* ============================================================
+   INCLUDE ADDITIONAL THEME FILES
+   ============================================================ */
+require_once get_template_directory() . '/inc/theme-options.php';
+require_once get_template_directory() . '/inc/import-tool.php';
+require_once get_template_directory() . '/inc/dynamic-css.php';

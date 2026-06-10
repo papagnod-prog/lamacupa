@@ -35,7 +35,10 @@
         <!-- Logo -->
         <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="site-logo" rel="home">
             <?php
-            if ( has_custom_logo() ) {
+            $lc_logo_url = function_exists( 'lamacupa_option' ) ? lamacupa_option( 'logo', '' ) : '';
+            if ( $lc_logo_url ) {
+                echo '<img src="' . esc_url( $lc_logo_url ) . '" class="site-logo__img" alt="' . esc_attr( get_bloginfo( 'name' ) ) . '">';
+            } elseif ( has_custom_logo() ) {
                 $logo_id  = get_theme_mod( 'custom_logo' );
                 $logo_img = wp_get_attachment_image( $logo_id, 'full', false, [
                     'class' => 'site-logo__img',
