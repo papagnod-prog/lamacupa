@@ -62,9 +62,72 @@ if ( ! is_user_logged_in() && 'no' === get_option( 'woocommerce_enable_guest_che
 
                     <!-- Billing Details -->
                     <div class="checkout-section" style="background:#fff;border-radius:8px;padding:32px;margin-bottom:24px;box-shadow:0 2px 12px rgba(0,0,0,.06)">
-                        <h2 style="font-family:var(--font-heading);font-size:1.4rem;margin-bottom:24px;border-bottom:2px solid var(--color-primary,#5C6B2E);padding-bottom:12px">
+                        <h2 style="font-family:var(--font-heading);font-size:1.4rem;margin-bottom:20px;border-bottom:2px solid var(--color-primary,#5C6B2E);padding-bottom:12px">
                             <?php esc_html_e( 'Dati di Fatturazione', 'lamacupa' ); ?>
                         </h2>
+
+                        <!-- Selettore Privato / Azienda -->
+                        <div class="customer-type-selector">
+                            <label>
+                                <input type="radio" name="lamacupa_customer_type" value="privato" checked>
+                                <span>👤 <?php esc_html_e( 'Privato', 'lamacupa' ); ?></span>
+                            </label>
+                            <label>
+                                <input type="radio" name="lamacupa_customer_type" value="azienda">
+                                <span>🏢 <?php esc_html_e( 'Azienda / Libero professionista', 'lamacupa' ); ?></span>
+                            </label>
+                        </div>
+
+                        <!-- Campi extra Privato: Codice Fiscale -->
+                        <div id="billing-privato-fields" class="billing-extra-fields active">
+                            <div class="field-row full">
+                                <div>
+                                    <label for="billing_codice_fiscale"><?php esc_html_e( 'Codice Fiscale', 'lamacupa' ); ?></label>
+                                    <input type="text" id="billing_codice_fiscale" name="billing_codice_fiscale"
+                                        placeholder="RSSMRA80A01H501U"
+                                        maxlength="16"
+                                        value="<?php echo esc_attr( WC()->checkout()->get_value( 'billing_codice_fiscale' ) ); ?>" />
+                                    <p class="field-note"><?php esc_html_e( 'Necessario per emissione della ricevuta fiscale.', 'lamacupa' ); ?></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Campi extra Azienda: P.IVA + Ragione Sociale + SDI/PEC -->
+                        <div id="billing-azienda-fields" class="billing-extra-fields">
+                            <div class="field-row">
+                                <div>
+                                    <label for="billing_ragione_sociale"><?php esc_html_e( 'Ragione Sociale', 'lamacupa' ); ?> <span style="color:red">*</span></label>
+                                    <input type="text" id="billing_ragione_sociale" name="billing_ragione_sociale"
+                                        placeholder="Azienda S.r.l."
+                                        value="<?php echo esc_attr( WC()->checkout()->get_value( 'billing_ragione_sociale' ) ); ?>" />
+                                </div>
+                                <div>
+                                    <label for="billing_piva"><?php esc_html_e( 'Partita IVA', 'lamacupa' ); ?> <span style="color:red">*</span></label>
+                                    <input type="text" id="billing_piva" name="billing_piva"
+                                        placeholder="IT12345678901"
+                                        maxlength="13"
+                                        value="<?php echo esc_attr( WC()->checkout()->get_value( 'billing_piva' ) ); ?>" />
+                                </div>
+                            </div>
+                            <div class="field-row" style="margin-top:14px">
+                                <div>
+                                    <label for="billing_sdi"><?php esc_html_e( 'Codice SDI', 'lamacupa' ); ?></label>
+                                    <input type="text" id="billing_sdi" name="billing_sdi"
+                                        placeholder="ABCDE12"
+                                        maxlength="7"
+                                        value="<?php echo esc_attr( WC()->checkout()->get_value( 'billing_sdi' ) ); ?>" />
+                                    <p class="field-note"><?php esc_html_e( 'Codice destinatario a 6 o 7 caratteri.', 'lamacupa' ); ?></p>
+                                </div>
+                                <div>
+                                    <label for="billing_pec"><?php esc_html_e( 'Oppure PEC', 'lamacupa' ); ?></label>
+                                    <input type="text" id="billing_pec" name="billing_pec"
+                                        placeholder="fatture@pec.azienda.it"
+                                        value="<?php echo esc_attr( WC()->checkout()->get_value( 'billing_pec' ) ); ?>" />
+                                    <p class="field-note"><?php esc_html_e( 'Inserire SDI o PEC — non entrambi.', 'lamacupa' ); ?></p>
+                                </div>
+                            </div>
+                        </div>
+
                         <?php do_action( 'woocommerce_checkout_billing' ); ?>
                     </div>
 

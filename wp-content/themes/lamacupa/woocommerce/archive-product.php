@@ -18,45 +18,29 @@ do_action( 'woocommerce_before_main_content' );
 
 <div class="shop-page">
 
-    <!-- Shop Hero Banner -->
-    <div class="shop-hero" style="background-color:var(--color-cream-dark);padding:calc(var(--nav-height,80px) + 48px) 0 56px">
-        <div class="container">
-            <span class="eyebrow"><?php esc_html_e( 'La Nostra Selezione', 'lamacupa' ); ?></span>
-            <h1 class="shop-hero__title" style="font-family:var(--font-heading);font-size:clamp(2rem,5vw,3.5rem);margin-bottom:16px">
+    <!-- Shop Hero Banner — compact -->
+    <div class="shop-hero" style="background-color:var(--color-cream-dark);padding:calc(var(--nav-height,80px) + 20px) 0 20px">
+        <div class="container" style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap">
+            <h1 style="font-family:var(--font-heading);font-size:clamp(1.4rem,3vw,2rem);margin:0">
                 <?php
                 if ( is_search() ) {
-                    /* translators: %s: search query */
                     printf( esc_html__( 'Risultati per: "%s"', 'lamacupa' ), get_search_query() );
-                } elseif ( is_product_category() ) {
-                    echo woocommerce_page_title( false );
-                } elseif ( is_product_tag() ) {
+                } elseif ( is_product_category() || is_product_tag() ) {
                     echo woocommerce_page_title( false );
                 } else {
                     esc_html_e( 'I Nostri Prodotti', 'lamacupa' );
                 }
                 ?>
             </h1>
-            <?php
-            $term = get_queried_object();
-            if ( $term && ! empty( $term->description ) ) {
-                echo '<p class="lead" style="max-width:620px;margin-top:12px">' . wp_kses_post( $term->description ) . '</p>';
-            } else {
-                ?>
-                <p class="lead" style="max-width:620px;margin-top:12px">
-                    <?php esc_html_e( "Olio extravergine d'oliva biologico e prodotti selezionati dell'Azienda Agricola Lamacupa.", 'lamacupa' ); ?>
-                </p>
-                <?php
-            }
-            ?>
         </div>
     </div>
 
     <!-- Category Filter Buttons -->
-    <?php if ( ! is_product_category() && ! is_search() ) : ?>
-    <div class="shop-filters" style="background:#fff;border-bottom:1px solid rgba(0,0,0,.08);padding:20px 0">
+    <?php if ( ! is_search() ) : ?>
+    <div class="shop-filters" style="background:#fff;border-bottom:1px solid rgba(0,0,0,.08);padding:12px 0">
         <div class="container">
-            <div class="shop-filters__inner" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
-                <span style="font-weight:600;margin-right:6px"><?php esc_html_e( 'Filtra:', 'lamacupa' ); ?></span>
+            <div class="shop-filters__inner" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+                <span style="font-weight:600;font-size:.85rem;margin-right:4px;text-transform:uppercase;letter-spacing:.05em"><?php esc_html_e( 'Filtra:', 'lamacupa' ); ?></span>
 
                 <?php
                 $current_cat_slug = get_query_var( 'product_cat' );
@@ -65,7 +49,7 @@ do_action( 'woocommerce_before_main_content' );
                 // "Tutti" button
                 $all_active = empty( $current_cat_slug ) ? 'btn--primary' : 'btn--outline';
                 printf(
-                    '<a href="%s" class="btn btn--sm %s">%s</a>',
+                    '<a href="%s" class="btn btn--xs %s">%s</a>',
                     esc_url( $shop_url ),
                     esc_attr( $all_active ),
                     esc_html__( 'Tutti', 'lamacupa' )
@@ -86,7 +70,7 @@ do_action( 'woocommerce_before_main_content' );
                         $cat_url    = get_term_link( $cat );
                         $is_active  = ( $current_cat_slug === $cat->slug ) ? 'btn--primary' : 'btn--outline';
                         printf(
-                            '<a href="%s" class="btn btn--sm %s">%s</a>',
+                            '<a href="%s" class="btn btn--xs %s">%s</a>',
                             esc_url( $cat_url ),
                             esc_attr( $is_active ),
                             esc_html( $cat->name )
@@ -105,7 +89,7 @@ do_action( 'woocommerce_before_main_content' );
                             $cat_url   = get_term_link( $cat_obj );
                             $is_active = ( $current_cat_slug === $slug ) ? 'btn--primary' : 'btn--outline';
                             printf(
-                                '<a href="%s" class="btn btn--sm %s">%s</a>',
+                                '<a href="%s" class="btn btn--xs %s">%s</a>',
                                 esc_url( $cat_url ),
                                 esc_attr( $is_active ),
                                 esc_html( $label )
@@ -120,7 +104,7 @@ do_action( 'woocommerce_before_main_content' );
     <?php endif; ?>
 
     <!-- Shop Toolbar + Products -->
-    <div class="container" style="padding-top:48px;padding-bottom:80px">
+    <div class="container" style="padding-top:28px;padding-bottom:80px">
 
         <div class="shop-toolbar" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;flex-wrap:wrap;gap:12px">
             <?php woocommerce_result_count(); ?>

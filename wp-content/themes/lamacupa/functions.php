@@ -356,6 +356,79 @@ add_filter( 'loop_shop_columns', function() { return 3; } );
 add_filter( 'loop_shop_per_page', function() { return 9; }, 20 );
 
 /* ============================================================
+   CHECKOUT – CAMPI FATTURAZIONE ITALIANI (P.IVA / CF / SDI / PEC)
+   ============================================================ */
+
+// Registra i campi aggiuntivi nel checkout WooCommerce
+add_filter( 'woocommerce_checkout_fields', function( $fields ) {
+    $fields['billing']['billing_customer_type'] = [
+        'type'     => 'hidden',
+        'default'  => 'privato',
+        'priority' => 5,
+    ];
+    $fields['billing']['billing_codice_fiscale'] = [
+        'label'    => __( 'Codice Fiscale', 'lamacupa' ),
+        'required' => false,
+        'priority' => 120,
+        'class'    => [ 'form-row-wide' ],
+    ];
+    $fields['billing']['billing_ragione_sociale'] = [
+        'label'    => __( 'Ragione Sociale', 'lamacupa' ),
+        'required' => false,
+        'priority' => 121,
+        'class'    => [ 'form-row-wide' ],
+    ];
+    $fields['billing']['billing_piva'] = [
+        'label'    => __( 'Partita IVA', 'lamacupa' ),
+        'required' => false,
+        'priority' => 122,
+        'class'    => [ 'form-row-wide' ],
+    ];
+    $fields['billing']['billing_sdi'] = [
+        'label'    => __( 'Codice SDI', 'lamacupa' ),
+        'required' => false,
+        'priority' => 123,
+        'class'    => [ 'form-row-first' ],
+    ];
+    $fields['billing']['billing_pec'] = [
+        'label'    => __( 'PEC', 'lamacupa' ),
+        'required' => false,
+        'priority' => 124,
+        'class'    => [ 'form-row-last' ],
+    ];
+    return $fields;
+} );
+
+// Salva i campi sull'ordine
+add_action( 'woocommerce_checkout_update_order_meta', function( $order_id ) {
+    $fields = [ 'billing_customer_type', 'billing_codice_fiscale', 'billing_ragione_sociale', 'billing_piva', 'billing_sdi', 'billing_pec' ];
+    foreach ( $fields as $field ) {
+        if ( ! empty( $_POST[ $field ] ) ) {
+            update_post_meta( $order_id, '_' . $field, sanitize_text_field( wp_unslash( $_POST[ $field ] ) ) );
+        }
+    }
+} );
+
+// Mostra i campi nel pannello ordine in admin
+add_action( 'woocommerce_admin_order_data_after_billing_address', function( $order ) {
+    $tipo  = get_post_meta( $order->get_id(), '_billing_customer_type', true );
+    $cf    = get_post_meta( $order->get_id(), '_billing_codice_fiscale', true );
+    $rs    = get_post_meta( $order->get_id(), '_billing_ragione_sociale', true );
+    $piva  = get_post_meta( $order->get_id(), '_billing_piva', true );
+    $sdi   = get_post_meta( $order->get_id(), '_billing_sdi', true );
+    $pec   = get_post_meta( $order->get_id(), '_billing_pec', true );
+
+    echo '<div style="margin-top:12px;padding-top:12px;border-top:1px solid #eee">';
+    echo '<strong>Tipo cliente:</strong> ' . esc_html( $tipo ?: 'privato' ) . '<br>';
+    if ( $cf )   echo '<strong>C.F.:</strong> '           . esc_html( $cf )   . '<br>';
+    if ( $rs )   echo '<strong>Ragione Sociale:</strong> ' . esc_html( $rs )   . '<br>';
+    if ( $piva ) echo '<strong>P.IVA:</strong> '          . esc_html( $piva ) . '<br>';
+    if ( $sdi )  echo '<strong>SDI:</strong> '            . esc_html( $sdi )  . '<br>';
+    if ( $pec )  echo '<strong>PEC:</strong> '            . esc_html( $pec )  . '<br>';
+    echo '</div>';
+} );
+
+/* ============================================================
    THEME OPTIONS HELPER
    ============================================================ */
 /**

@@ -4,6 +4,102 @@
  */
 
 /* ============================================================
+   BUTTON EXTRA SMALL
+   ============================================================ */
+
+.btn--xs {
+    padding: 5px 12px;
+    font-size: 0.75rem;
+    letter-spacing: .06em;
+    border-radius: 3px;
+}
+
+/* ============================================================
+   CHECKOUT – TIPO CLIENTE (privato/azienda)
+   ============================================================ */
+
+.customer-type-selector {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.customer-type-selector label {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    border: 2px solid var(--color-cream-dark, #e8e0d0);
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: border-color .2s, background .2s;
+}
+
+.customer-type-selector input[type="radio"] {
+    accent-color: var(--color-primary, #5C6B2E);
+    width: 18px;
+    height: 18px;
+}
+
+.customer-type-selector label:has(input:checked) {
+    border-color: var(--color-primary, #5C6B2E);
+    background: rgba(92,107,46,.06);
+}
+
+.billing-extra-fields {
+    border: 1px solid var(--color-cream-dark, #e8e0d0);
+    border-radius: 6px;
+    padding: 20px;
+    margin-top: 16px;
+    background: #fafaf8;
+}
+
+.billing-extra-fields .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.billing-extra-fields .field-row.full { grid-template-columns: 1fr; }
+
+.billing-extra-fields label {
+    display: block;
+    font-size: .85rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--color-text, #2C2C2C);
+}
+
+.billing-extra-fields input[type="text"],
+.billing-extra-fields input[type="email"] {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #d0ccc4;
+    border-radius: 4px;
+    font-size: .95rem;
+    box-sizing: border-box;
+}
+
+.billing-extra-fields input:focus {
+    outline: none;
+    border-color: var(--color-primary, #5C6B2E);
+    box-shadow: 0 0 0 3px rgba(92,107,46,.15);
+}
+
+.billing-extra-fields .field-note {
+    font-size: .8rem;
+    color: #888;
+    margin-top: 4px;
+}
+
+#billing-azienda-fields,
+#billing-privato-fields { display: none; }
+#billing-azienda-fields.active,
+#billing-privato-fields.active { display: block; }
+
+/* ============================================================
    WOOCOMMERCE – GLOBAL OVERRIDES
    ============================================================ */
 

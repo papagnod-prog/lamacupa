@@ -526,6 +526,31 @@
     if (typeof wc_add_to_cart_params !== 'undefined' || document.querySelector('.woocommerce')) {
       initWooCartAjax();
     }
+
+    // Checkout: toggle privato/azienda
+    initCheckoutCustomerType();
   });
+
+  function initCheckoutCustomerType() {
+    const radios = document.querySelectorAll('input[name="lamacupa_customer_type"]');
+    if (!radios.length) return;
+
+    const privatoFields  = document.getElementById('billing-privato-fields');
+    const aziendaFields  = document.getElementById('billing-azienda-fields');
+
+    function toggleFields() {
+      const val = document.querySelector('input[name="lamacupa_customer_type"]:checked').value;
+      if (val === 'azienda') {
+        privatoFields.classList.remove('active');
+        aziendaFields.classList.add('active');
+      } else {
+        aziendaFields.classList.remove('active');
+        privatoFields.classList.add('active');
+      }
+    }
+
+    radios.forEach(r => r.addEventListener('change', toggleFields));
+    toggleFields();
+  }
 
 })();
