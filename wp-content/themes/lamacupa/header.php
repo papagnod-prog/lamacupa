@@ -1,129 +1,69 @@
-<!DOCTYPE html>
+<?php
+/**
+ * Header template
+ * @package Lamacupa
+ */
+?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
-    <meta charset="<?php bloginfo( 'charset' ); ?>">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <link rel="profile" href="https://gmpg.org/xfn/11">
-    <?php wp_head(); ?>
+<meta charset="<?php bloginfo('charset'); ?>">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<?php wp_head(); ?>
 </head>
-
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
 
-<!-- Mobile Nav Overlay -->
-<div class="mobile-nav-overlay" id="mobileNavOverlay" aria-hidden="true"></div>
-
-<!-- Mobile Nav Drawer -->
-<nav class="mobile-nav" id="mobileNav" aria-label="<?php esc_attr_e( 'Menu mobile', 'lamacupa' ); ?>">
-    <?php
-    wp_nav_menu( [
-        'theme_location'  => 'primary',
-        'container'       => false,
-        'menu_class'      => '',
-        'fallback_cb'     => 'lamacupa_mobile_menu_fallback',
-        'items_wrap'      => '%3$s',
-        'depth'           => 2,
-    ] );
-    ?>
-</nav>
-
-<!-- Site Header -->
-<header class="site-header<?php echo ( ! is_front_page() ) ? ' site-header--solid' : ''; ?>" id="siteHeader">
-    <div class="nav-container">
-
-        <!-- Logo -->
-        <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="site-logo" rel="home">
-            <?php
-            $lc_logo_id  = function_exists( 'lamacupa_option' ) ? (int) lamacupa_option( 'logo', 0 ) : 0;
-            $lc_logo_url = $lc_logo_id ? wp_get_attachment_image_url( $lc_logo_id, 'full' ) : '';
-            if ( $lc_logo_url ) {
-                echo '<img src="' . esc_url( $lc_logo_url ) . '" class="site-logo__img" alt="' . esc_attr( get_bloginfo( 'name' ) ) . '">';
-            } elseif ( has_custom_logo() ) {
-                $logo_id  = get_theme_mod( 'custom_logo' );
-                $logo_img = wp_get_attachment_image( $logo_id, 'full', false, [
-                    'class' => 'site-logo__img',
-                    'alt'   => esc_attr( get_bloginfo( 'name' ) ),
-                ] );
-                echo $logo_img;
-            } else {
-                ?>
-                <span class="site-logo__text">
-                    <span class="site-logo__name"><?php bloginfo( 'name' ); ?></span>
-                    <span class="site-logo__tagline">Azienda Agricola</span>
-                </span>
-                <?php
-            }
-            ?>
+<header class="site-header" id="site-header">
+  <div class="container header-inner">
+    <div class="header-logo">
+      <?php if ( has_custom_logo() ) : the_custom_logo(); else : ?>
+        <a href="<?php echo esc_url( home_url('/') ); ?>" class="site-name">
+          <?php bloginfo('name'); ?>
         </a>
+      <?php endif; ?>
+    </div>
 
-        <!-- Primary Navigation -->
-        <nav class="primary-nav" id="primaryNav" aria-label="<?php esc_attr_e( 'Menu principale', 'lamacupa' ); ?>">
-            <?php
-            wp_nav_menu( [
-                'theme_location'  => 'primary',
-                'container'       => false,
-                'menu_class'      => 'primary-nav',
-                'fallback_cb'     => 'lamacupa_primary_menu_fallback',
-                'items_wrap'      => '%3$s',
-                'depth'           => 2,
-            ] );
-            ?>
-        </nav>
+    <nav class="header-nav" aria-label="<?php esc_attr_e('Menu principale', 'lamacupa'); ?>">
+      <?php wp_nav_menu([
+        'theme_location' => 'primary',
+        'container'      => false,
+        'menu_class'     => 'nav-list',
+        'fallback_cb'    => '__return_false',
+      ]); ?>
+    </nav>
 
-        <!-- WooCommerce Cart + Hamburger -->
-        <div class="flex flex--gap-16 flex--center">
+    <div class="header-actions">
+      <?php if ( class_exists('WooCommerce') ) : ?>
+        <a href="<?php echo esc_url( wc_get_cart_url() ); ?>" class="cart-icon" aria-label="<?php esc_attr_e('Carrello', 'lamacupa'); ?>">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+          <?php $count = WC()->cart ? WC()->cart->get_cart_contents_count() : 0; ?>
+          <span class="cart-count<?php echo $count ? '' : ' cart-count--empty'; ?>"><?php echo esc_html($count); ?></span>
+        </a>
+      <?php endif; ?>
 
-            <?php if ( class_exists( 'WooCommerce' ) ) : ?>
-            <div class="nav-cart" aria-label="<?php esc_attr_e( 'Carrello', 'lamacupa' ); ?>">
-                <a href="<?php echo esc_url( wc_get_cart_url() ); ?>" title="<?php esc_attr_e( 'Visualizza carrello', 'lamacupa' ); ?>">
-                    <svg class="nav-cart__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M7.5 18a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm9 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2 2h2l2.68 10.39L7 14h12l2-7H6.21L5 3H2V2zM9 14l-.54-2h9.08l-1.14 4H8l1-2z"/>
-                    </svg>
-                    <span class="nav-cart__count"><?php echo esc_html( WC()->cart ? WC()->cart->get_cart_contents_count() : '0' ); ?></span>
-                    <span class="visually-hidden"><?php esc_html_e( 'Articoli nel carrello', 'lamacupa' ); ?></span>
-                </a>
-            </div>
-            <?php endif; ?>
+      <button class="hamburger" id="hamburger" aria-label="<?php esc_attr_e('Apri menu', 'lamacupa'); ?>" aria-expanded="false" aria-controls="mobile-menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
 
-            <!-- Hamburger (mobile) -->
-            <button
-                class="hamburger"
-                id="hamburgerBtn"
-                aria-label="<?php esc_attr_e( 'Apri menu', 'lamacupa' ); ?>"
-                aria-expanded="false"
-                aria-controls="mobileNav"
-            >
-                <span class="hamburger__line"></span>
-                <span class="hamburger__line"></span>
-                <span class="hamburger__line"></span>
-            </button>
+<div class="mobile-menu-overlay" id="mobile-menu" aria-hidden="true">
+  <button class="mobile-menu-close" id="mobile-menu-close" aria-label="<?php esc_attr_e('Chiudi menu', 'lamacupa'); ?>">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  </button>
+  <?php wp_nav_menu([
+    'theme_location' => 'primary',
+    'container'      => 'nav',
+    'container_class'=> 'mobile-nav',
+    'menu_class'     => 'mobile-nav-list',
+    'fallback_cb'    => '__return_false',
+  ]); ?>
+</div>
 
-        </div><!-- /.flex -->
-
-    </div><!-- /.nav-container -->
-</header><!-- /.site-header -->
-
-<?php
-/**
- * Fallback for primary nav menu when no menu is assigned.
- */
-function lamacupa_primary_menu_fallback() {
-    $pages = [
-        home_url( '/' )               => __( 'Home',           'lamacupa' ),
-        home_url( '/chi-siamo/' )     => __( 'Chi Siamo',      'lamacupa' ),
-        home_url( '/la-nostra-terra/' ) => __( 'La Nostra Terra', 'lamacupa' ),
-        home_url( '/gli-orci/' )      => __( 'Gli Orci',       'lamacupa' ),
-        home_url( '/premi/' )         => __( 'Premi',          'lamacupa' ),
-        home_url( '/olioturismo/' )   => __( 'Olioturismo',    'lamacupa' ),
-        home_url( '/prodotti/' )      => __( 'Prodotti',       'lamacupa' ),
-        home_url( '/contatti/' )      => __( 'Contatti',       'lamacupa' ),
-    ];
-    foreach ( $pages as $url => $label ) {
-        printf( '<a href="%s">%s</a>', esc_url( $url ), esc_html( $label ) );
-    }
-}
-
-function lamacupa_mobile_menu_fallback() {
-    lamacupa_primary_menu_fallback();
-}
+<div class="site-content">

@@ -1,150 +1,63 @@
-<?php
-/**
- * WooCommerce Archive Product Template (Shop Page)
- *
- * @package Lamacupa
- * @version WooCommerce 8.x
- */
-
-defined( 'ABSPATH' ) || exit;
-
+<?php defined( 'ABSPATH' ) || exit;
 get_header( 'shop' );
-
-/**
- * woocommerce_before_main_content fires our custom wrapper (functions.php)
- */
 do_action( 'woocommerce_before_main_content' );
 ?>
+<div class="page-hero" style="padding-bottom:20px">
+  <div class="container">
+    <?php lamacupa_breadcrumb() ?>
+    <h1 style="font-size:clamp(1.4rem,3vw,2rem)">
+      <?php if ( is_search() ) : printf( 'Risultati per: "%s"', get_search_query() );
+      elseif ( is_product_category() || is_product_tag() ) : echo woocommerce_page_title( false );
+      else : esc_html_e( 'I Nostri Prodotti', 'lamacupa' ); endif ?>
+    </h1>
+  </div>
+</div>
 
-<div class="shop-page">
-
-    <!-- Shop Hero Banner — compact -->
-    <div class="shop-hero" style="background-color:var(--color-cream-dark);padding:calc(var(--nav-height,80px) + 20px) 0 20px">
-        <div class="container" style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap">
-            <h1 style="font-family:var(--font-heading);font-size:clamp(1.4rem,3vw,2rem);margin:0">
-                <?php
-                if ( is_search() ) {
-                    printf( esc_html__( 'Risultati per: "%s"', 'lamacupa' ), get_search_query() );
-                } elseif ( is_product_category() || is_product_tag() ) {
-                    echo woocommerce_page_title( false );
-                } else {
-                    esc_html_e( 'I Nostri Prodotti', 'lamacupa' );
-                }
-                ?>
-            </h1>
-        </div>
+<!-- Category filter -->
+<?php if ( ! is_search() ) : ?>
+<div class="shop-filters">
+  <div class="container">
+    <div class="filter-pills">
+      <span class="filter-label">Filtra:</span>
+      <?php
+      $cur  = get_query_var( 'product_cat' );
+      $url  = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' );
+      $cls  = empty( $cur ) ? 'btn--primary' : 'btn--outline';
+      printf( '<a href="%s" class="btn btn--xs %s">Tutti</a>', esc_url( $url ), esc_attr( $cls ) );
+      $cats = get_terms( [ 'taxonomy' => 'product_cat', 'hide_empty' => true, 'parent' => 0, 'orderby' => 'menu_order', 'exclude' => get_option( 'default_product_cat', 0 ) ] );
+      if ( $cats && ! is_wp_error( $cats ) ) {
+          foreach ( $cats as $cat ) {
+              $active = $cur === $cat->slug ? 'btn--primary' : 'btn--outline';
+              printf( '<a href="%s" class="btn btn--xs %s">%s</a>', esc_url( get_term_link( $cat ) ), esc_attr( $active ), esc_html( $cat->name ) );
+          }
+      }
+      ?>
     </div>
+  </div>
+</div>
+<?php endif ?>
 
-    <!-- Category Filter Buttons -->
-    <?php if ( ! is_search() ) : ?>
-    <div class="shop-filters" style="background:#fff;border-bottom:1px solid rgba(0,0,0,.08);padding:12px 0">
-        <div class="container">
-            <div class="shop-filters__inner" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
-                <span style="font-weight:600;font-size:.85rem;margin-right:4px;text-transform:uppercase;letter-spacing:.05em"><?php esc_html_e( 'Filtra:', 'lamacupa' ); ?></span>
+<div class="container" style="padding-top:28px;padding-bottom:80px">
+  <div class="shop-toolbar">
+    <?php woocommerce_result_count(); woocommerce_catalog_ordering(); ?>
+  </div>
+  <?php woocommerce_output_all_notices();
+  if ( woocommerce_product_loop() ) :
+    do_action( 'woocommerce_before_shop_loop' );
+    woocommerce_product_loop_start();
+    if ( wc_get_loop_prop( 'total' ) ) :
+      while ( have_posts() ) : the_post();
+        do_action( 'woocommerce_shop_loop' );
+        wc_get_template_part( 'content', 'product' );
+      endwhile;
+    endif;
+    woocommerce_product_loop_end();
+    do_action( 'woocommerce_after_shop_loop' );
+  else :
+    do_action( 'woocommerce_no_products_found' );
+  endif ?>
+</div>
 
-                <?php
-                $current_cat_slug = get_query_var( 'product_cat' );
-                $shop_url         = get_permalink( wc_get_page_id( 'shop' ) );
-
-                // "Tutti" button
-                $all_active = empty( $current_cat_slug ) ? 'btn--primary' : 'btn--outline';
-                printf(
-                    '<a href="%s" class="btn btn--xs %s">%s</a>',
-                    esc_url( $shop_url ),
-                    esc_attr( $all_active ),
-                    esc_html__( 'Tutti', 'lamacupa' )
-                );
-
-                // Top-level product categories
-                $categories = get_terms( [
-                    'taxonomy'   => 'product_cat',
-                    'hide_empty' => true,
-                    'parent'     => 0,
-                    'orderby'    => 'menu_order',
-                    'order'      => 'ASC',
-                    'exclude'    => get_option( 'default_product_cat', 0 ),
-                ] );
-
-                if ( $categories && ! is_wp_error( $categories ) ) {
-                    foreach ( $categories as $cat ) {
-                        $cat_url    = get_term_link( $cat );
-                        $is_active  = ( $current_cat_slug === $cat->slug ) ? 'btn--primary' : 'btn--outline';
-                        printf(
-                            '<a href="%s" class="btn btn--xs %s">%s</a>',
-                            esc_url( $cat_url ),
-                            esc_attr( $is_active ),
-                            esc_html( $cat->name )
-                        );
-                    }
-                } else {
-                    // Fallback static categories
-                    $static_cats = [
-                        'olio-evo'          => 'Olio EVO',
-                        'confezioni-regalo' => 'Confezioni Regalo',
-                        'accessori'         => 'Accessori',
-                    ];
-                    foreach ( $static_cats as $slug => $label ) {
-                        $cat_obj = get_term_by( 'slug', $slug, 'product_cat' );
-                        if ( $cat_obj ) {
-                            $cat_url   = get_term_link( $cat_obj );
-                            $is_active = ( $current_cat_slug === $slug ) ? 'btn--primary' : 'btn--outline';
-                            printf(
-                                '<a href="%s" class="btn btn--xs %s">%s</a>',
-                                esc_url( $cat_url ),
-                                esc_attr( $is_active ),
-                                esc_html( $label )
-                            );
-                        }
-                    }
-                }
-                ?>
-            </div>
-        </div>
-    </div>
-    <?php endif; ?>
-
-    <!-- Shop Toolbar + Products -->
-    <div class="container" style="padding-top:28px;padding-bottom:80px">
-
-        <div class="shop-toolbar" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;flex-wrap:wrap;gap:12px">
-            <?php woocommerce_result_count(); ?>
-            <?php woocommerce_catalog_ordering(); ?>
-        </div>
-
-        <?php
-        woocommerce_output_all_notices();
-
-        if ( woocommerce_product_loop() ) :
-
-            do_action( 'woocommerce_before_shop_loop' );
-
-            woocommerce_product_loop_start();
-
-            if ( wc_get_loop_prop( 'total' ) ) :
-                while ( have_posts() ) :
-                    the_post();
-                    do_action( 'woocommerce_shop_loop' );
-                    wc_get_template_part( 'content', 'product' );
-                endwhile;
-            endif;
-
-            woocommerce_product_loop_end();
-
-            /**
-             * woocommerce_after_shop_loop
-             * - woocommerce_pagination() (10)
-             */
-            do_action( 'woocommerce_after_shop_loop' );
-
-        else :
-            do_action( 'woocommerce_no_products_found' );
-        endif;
-        ?>
-
-    </div><!-- /.container -->
-</div><!-- /.shop-page -->
-
-<?php
-do_action( 'woocommerce_after_main_content' );
-
-get_footer( 'shop' );
+<?php do_action( 'woocommerce_after_main_content' );
+get_footer( 'shop' )
+;

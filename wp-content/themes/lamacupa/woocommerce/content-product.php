@@ -1,96 +1,23 @@
-<?php
-/**
- * WooCommerce Product Card Template (Loop)
- *
- * Used in the product archive loop via wc_get_template_part( 'content', 'product' ).
- *
- * @package Lamacupa
- * @version WooCommerce 8.x
- */
-
-defined( 'ABSPATH' ) || exit;
-
+<?php defined( 'ABSPATH' ) || exit;
 global $product;
-
-// Ensure visibility.
-if ( empty( $product ) || ! $product->is_visible() ) {
-    return;
-}
+if ( ! $product || ! $product->is_visible() ) return;
 ?>
-<li <?php wc_product_class( 'product-card', $product ); ?>>
-
-    <?php
-    /**
-     * woocommerce_before_shop_loop_item
-     * - woocommerce_template_loop_product_link_open() (10)
-     */
-    do_action( 'woocommerce_before_shop_loop_item' );
-    ?>
-
-    <!-- Product Image -->
-    <div class="product-card__image-wrap">
-        <?php
-        /**
-         * woocommerce_before_shop_loop_item_title
-         * - woocommerce_show_product_loop_sale_flash() (10)
-         * - woocommerce_template_loop_product_thumbnail() (10)
-         */
-        do_action( 'woocommerce_before_shop_loop_item_title' );
-        ?>
-    </div><!-- /.product-card__image-wrap -->
-
-    <!-- Product Info -->
-    <div class="woo-product-info">
-
-        <?php
-        // Category badge
-        $terms = get_the_terms( $product->get_id(), 'product_cat' );
-        if ( $terms && ! is_wp_error( $terms ) ) {
-            $term = reset( $terms );
-            echo '<span class="card__eyebrow">' . esc_html( $term->name ) . '</span>';
-        }
-        ?>
-
-        <?php
-        /**
-         * woocommerce_shop_loop_item_title
-         * - woocommerce_template_loop_product_title() (10)
-         */
-        do_action( 'woocommerce_shop_loop_item_title' );
-        ?>
-
-        <?php
-        // Short description (excerpt)
-        $short_desc = $product->get_short_description();
-        if ( $short_desc ) {
-            echo '<p class="product-card__desc" style="font-size:0.88rem;color:var(--color-text-light);margin-bottom:12px;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden">';
-            echo wp_kses_post( wp_trim_words( $short_desc, 18 ) );
-            echo '</p>';
-        }
-        ?>
-
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-
-            <?php
-            /**
-             * woocommerce_after_shop_loop_item_title
-             * - woocommerce_template_loop_rating() (5)
-             * - woocommerce_template_loop_price() (10)
-             */
-            do_action( 'woocommerce_after_shop_loop_item_title' );
-            ?>
-
-            <?php
-            /**
-             * woocommerce_after_shop_loop_item
-             * - woocommerce_template_loop_product_link_close() (5)
-             * - woocommerce_template_loop_add_to_cart() (10)
-             */
-            do_action( 'woocommerce_after_shop_loop_item' );
-            ?>
-
-        </div>
-
-    </div><!-- /.woo-product-info -->
-
-</li>
+<div class="product-card" <?php wc_product_class( '', $product ) ?>>
+  <a href="<?php the_permalink() ?>" class="product-card__img">
+    <?php if ( $product->get_image_id() ) :
+      echo $product->get_image( 'product-thumb', [ 'loading' => 'lazy', 'alt' => esc_attr( $product->get_name() ) ] );
+    else : ?>
+      <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--color-cream);min-height:220px;color:var(--color-text-light)">🫒</div>
+    <?php endif ?>
+  </a>
+  <div class="product-card__body">
+    <?php $cats = wc_get_product_category_list( $product->get_id(), ', ' );
+    if ( $cats ) echo '<span class="product-card__cat">' . wp_strip_all_tags( $cats ) . '</span>'; ?>
+    <h2 class="product-card__title"><a href="<?php the_permalink() ?>"><?php the_title() ?></a></h2>
+    <?php if ( $desc = $product->get_short_description() ) : ?>
+      <p class="product-card__desc"><?php echo wp_strip_all_tags( $desc ) ?></p>
+    <?php endif ?>
+    <span class="product-card__price"><?php echo $product->get_price_html() ?></span>
+    <?php woocommerce_template_loop_add_to_cart() ?>
+  </div>
+</div>
